@@ -20,6 +20,7 @@ class Message extends Model
         'receiver_id',
         'group_id',
         'conversation_id',
+        'last_message_id',
     ];
 
     /**

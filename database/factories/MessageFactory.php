@@ -29,7 +29,7 @@ class MessageFactory extends Factory
         $groupId = null;
 
         // si c'est un message de group
-        if($isGroupMessage) {
+        if ($isGroupMessage) {
             // On s'assure que le groupe exist dans la BDD
             $groupIds = \App\Models\Group::pluck('id')->toArray();
 
@@ -50,12 +50,27 @@ class MessageFactory extends Factory
             $receiverId = fake()->randomElement(array_diff($userIds, [$senderId])); // array_diff([1, 2, 3, 4, 5], [3]) => [1, 2, 4, 5]);
         }
 
+        // Trouver et créer une conversation directe entre the sender et le receiver
+        $conversationId = null;
+
+        if (!$isGroupMessage) {
+            $conversationId = \App\Models\Conversation::firstOrCreate(
+                [
+                    'user_id1' => min($senderId, $receiverId),
+                    'user_id2' => max($senderId, $receiverId),
+                ],
+                [
+                    'last_message_id' => null,
+                ]
+            );
+        }
+
         return [
             "message" => fake()->realText(),
             "sender_id" => $senderId,
             "receiver_id" => $receiverId,
             "group_id" => $groupId,
-            // "conversation_id" => '',
+            "conversation_id" => $conversationId,
         ];
     }
 }
