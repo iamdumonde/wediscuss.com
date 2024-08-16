@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\Conversation;
 use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -46,8 +48,26 @@ class DatabaseSeeder extends Seeder
         // Créer des messages de discussion
         Message::factory(1000)->create();
 
+       // Création des conversations
+       $messages = Message::whereNull('group_id')->orderBy('created_at')->get();
+
+       $conversations = $messages->groupBy(function (Message $message) {
+           return collect([$message->sender_id, $message->receiver_id])
+                   ->sort()
+                   ->implode('_');
+       })->map(function ($groupedMessages) {
+           return [
+               'user_id1' => $groupedMessages->first()->sender_id,
+               'user_id2' => $groupedMessages->first()->receiver_id,
+               'last_message_id' => $groupedMessages->last()->id,
+               'created_at' => new Carbon(),
+               'updated_at' => new Carbon(),
+           ];
+       })->values();
+
+       Conversation::insert($conversations->toArray());
 
         // Loguer la complétion du seedage
-        $this->command->info('Seeding database successfully'); 
+        $this->command->info('Seeding database successfully');
     }
 }

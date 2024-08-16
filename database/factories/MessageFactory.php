@@ -16,19 +16,21 @@ class MessageFactory extends Factory
      */
     public function definition(): array
     {
-        // on sélectionne de manière aléatoire tous les Ids d'utilisateur
+
+        // On sélectionne tous les ids  d'utilisateur
         $userIds = \App\Models\User::pluck('id')->toArray();
 
         // On décide de manière aléatoire si le message est un message direct (conversation) ou un message de group
         $isGroupMessage = fake()->boolean(50);
 
-        // on sélectionne un user aléatoirement
+        // on sélectionne un sender aléatoirement
         $senderId = fake()->randomElement($userIds);
-        // On initialise le receiverId et le groupId
+
+        // On initailise le receiverId et le groupId
         $receiverId = null;
         $groupId = null;
 
-        // si c'est un message de group
+        // si c'est un message de groupe
         if ($isGroupMessage) {
             // On s'assure que le groupe exist dans la BDD
             $groupIds = \App\Models\Group::pluck('id')->toArray();
@@ -36,41 +38,99 @@ class MessageFactory extends Factory
             if (empty($groupIds)) {
                 throw new \Exception("Aucun groupe trouvé dans la base de donnée");
             }
-
-            // on prend au hasard un groupe
+            // on prend au hazard un groupe
             $groupId = fake()->randomElement($groupIds);
 
-            // Sélectionne un groupe aléatoirement
+            // Sélectionner un groupe aléotoirement
             $group = \App\Models\Group::find($groupId);
-            // On récupère un utilisateur du groupe aléatoirement
+            // On récupère un utilisateur du groupe aléotoirement
             $senderId = fake()->randomElement($group->users->pluck('id')->toArray());
         } else {
-            // C'est un message direct qu'on envoie
-            // Sélectionne un receiver qui est différent du sender
-            $receiverId = fake()->randomElement(array_diff($userIds, [$senderId])); // array_diff([1, 2, 3, 4, 5], [3]) => [1, 2, 4, 5]);
+            // c'est un message direct qu'on envoie
+            // sélectionner un receiver qui est différent du sender
+            $receiverId = fake()->randomElement(array_diff($userIds, [$senderId])); // array_diff([1, 2, 3, 4, 5], [3]) => [1, 2, 4, 5]
         }
 
-        // Trouver et créer une conversation directe entre the sender et le receiver
+        // Trouver et créer un conversation directe entre the sender et le receiver
         $conversationId = null;
 
-        if (!$isGroupMessage) {
-            $conversationId = \App\Models\Conversation::firstOrCreate(
-                [
-                    'user_id1' => min($senderId, $receiverId),
-                    'user_id2' => max($senderId, $receiverId),
-                ],
-                [
-                    'last_message_id' => null,
-                ]
-            );
-        }
+        // if (!$isGroupMessage) {
+        //     $conversationId = \App\Models\Conversation::firstOrCreate(
+        //         [
+        //             'user_id1' => min($senderId, $receiverId),
+        //             'user_id2' => max($senderId, $receiverId),
+        //         ],
+        //         [
+        //             'last_message_id' => null,
+        //         ]
+        //     );
+        // }
 
         return [
-            "message" => fake()->realText(),
-            "sender_id" => $senderId,
-            "receiver_id" => $receiverId,
-            "group_id" => $groupId,
-            "conversation_id" => $conversationId,
+            'message' => fake()->realText(),
+            'sender_id' => $senderId,
+            'receiver_id' => $receiverId,
+            'group_id' => $groupId,
+            'conversation_id' => $conversationId,
         ];
     }
+    // public function definition(): array
+    // {
+    //     // on sélectionne de manière aléatoire tous les Ids d'utilisateur
+    //     $userIds = \App\Models\User::pluck('id')->toArray();
+
+    //     // On décide de manière aléatoire si le message est un message direct (conversation) ou un message de group
+    //     $isGroupMessage = fake()->boolean(50);
+
+    //     // on sélectionne un user aléatoirement
+    //     $senderId = fake()->randomElement($userIds);
+    //     // On initialise le receiverId et le groupId
+    //     $receiverId = null;
+    //     $groupId = null;
+
+    //     // si c'est un message de group
+    //     if ($isGroupMessage) {
+    //         // On s'assure que le groupe exist dans la BDD
+    //         $groupIds = \App\Models\Group::pluck('id')->toArray();
+
+    //         if (empty($groupIds)) {
+    //             throw new \Exception("Aucun groupe trouvé dans la base de donnée");
+    //         }
+
+    //         // on prend au hasard un groupe
+    //         $groupId = fake()->randomElement($groupIds);
+
+    //         // Sélectionne un groupe aléatoirement
+    //         $group = \App\Models\Group::find($groupId);
+    //         // On récupère un utilisateur du groupe aléatoirement
+    //         $senderId = fake()->randomElement($group->users->pluck('id')->toArray());
+    //     } else {
+    //         // C'est un message direct qu'on envoie
+    //         // Sélectionne un receiver qui est différent du sender
+    //         $receiverId = fake()->randomElement(array_diff($userIds, [$senderId])); // array_diff([1, 2, 3, 4, 5], [3]) => [1, 2, 4, 5]);
+    //     }
+
+    //     // Trouver et créer une conversation directe entre the sender et le receiver
+    //     $conversationId = null;
+
+    //     // if (!$isGroupMessage) {
+    //     //     $conversationId = \App\Models\Conversation::firstOrCreate(
+    //     //         [
+    //     //             'user_id1' => min($senderId, $receiverId),
+    //     //             'user_id2' => max($senderId, $receiverId),
+    //     //         ],
+    //     //         [
+    //     //             'last_message_id' => null,
+    //     //         ]
+    //     //     );
+    //     // }
+
+    //     return [
+    //         "message" => fake()->realText(),
+    //         "sender_id" => $senderId,
+    //         "receiver_id" => $receiverId,
+    //         "group_id" => $groupId,
+    //         "conversation_id" => $conversationId,
+    //     ];
+    // }
 }
