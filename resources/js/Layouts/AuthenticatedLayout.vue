@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -9,11 +9,15 @@ import { Link } from '@inertiajs/vue3';
 import ColorMode from '@/Components/ColorMode.vue';
 
 const showingNavigationDropdown = ref(false);
+
+onMounted(() => {
+  console.log('Authenticated layout');
+})
 </script>
 
 <template>
   <div>
-    <div class="min-h-screen   ">
+    <div class="min-h-screen">
       <nav class="  border-b border-gray-100 dark:border-gray-700">
         <!-- Primary Navigation Menu -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
